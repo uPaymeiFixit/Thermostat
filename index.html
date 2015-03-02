@@ -1,0 +1,57 @@
+<html>
+	<head>
+		<!-- include bootstrap, jquery for easy div manipulation -->
+		<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+		<script src="https://cdn.socket.io/socket.io-1.1.0.js"></script>
+
+	</head>
+	<body>
+		<h1>DS18B20 Temps</h1>
+		 
+		<div class="container">
+			<table class="table" id="temps">
+				<thead>
+				<tr>
+					<th>Sensor ID</th>
+					<th>Temperature (celsius)</th>
+				</tr>
+				</thead>
+			</table>
+		</div>
+		<button id="one">Send</button>
+
+
+		<script>
+			var socket = io.connect('http://10.0.1.2:3000');  //enter the IP of your beaglebone and port you are using in app.js
+	 
+			socket.on('sensors', function (data) { //append sensors to table
+				data.forEach(function (d) {
+					var html = '<tr><td>' + d + '</td><td id="' + d + '"></td></tr>';
+					$('#temps').append(html);
+				});
+			});
+	 
+			//update corresponding row with sensor value
+			socket.on('temps', function (data) {
+				$('#' + data.id).html(data.value);
+			});
+
+			$("#one").click(function() {
+				socket.emit('button_one');
+			});
+
+			socket.on('button_one', function (value) {
+				alert("The value of the first pin is: " + value);
+			});
+
+
+			socket.on('TXtest', function(msg){
+				alert("TXtest called: " + msg);
+			});
+	 
+		</script>
+
+
+	</body>
+</html>
